@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>SINDI — Sistema Integral de Necesidades y Diagnóstico de Infraestructura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+
+<!-- PWA -->
+<meta name="description" content="SINDI — Gestión de relevamientos, necesidades, proyectos, materiales y compras de infraestructura.">
+<meta name="theme-color" content="#12161c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SINDI">
+<meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================
+     RED DE SEGURIDAD: si algo falla en cualquier script de más abajo,
+     esto muestra el error en pantalla en vez de dejar todo en blanco.
+     Tiene que ir ANTES de cargar el resto de los scripts. No borrar.
+     ============================================================ -->
+<script>
+(function(){
+  function showFatal(title, detail){
+    var app = document.getElementById('app');
+    if(!app) return;
+    app.innerHTML =
+      '<div style="min-height:100vh;background:#12161c;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;font-family:system-ui,-apple-system,sans-serif;box-sizing:border-box;">' +
+        '<div style="max-width:560px;width:100%;background:#1c222b;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:26px;box-sizing:border-box;">' +
+          '<div style="font-size:20px;font-weight:700;color:#e2554d;margin-bottom:6px;">SINDI no pudo iniciar</div>' +
+          '<div style="font-size:13px;color:rgba(255,255,255,.72);margin-bottom:14px;line-height:1.5;">' + title + '</div>' +
+          '<pre style="white-space:pre-wrap;word-break:break-word;font-size:11px;background:#12161c;border-radius:8px;padding:12px;max-height:220px;overflow:auto;color:#e2b6b0;margin:0;">' + (detail||'(sin detalle adicional)') + '</pre>' +
+          '<div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;">' +
+            '<button onclick="location.reload()" style="flex:1;min-width:140px;padding:11px 14px;border-radius:6px;border:none;background:#a31f1f;color:#fff;font-weight:600;font-size:13px;cursor:pointer;">Reintentar</button>' +
+            '<button onclick="try{localStorage.clear();}catch(e){} location.reload();" style="flex:1;min-width:140px;padding:11px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;font-weight:600;font-size:13px;cursor:pointer;">Borrar datos y reintentar</button>' +
+          '</div>' +
+          '<div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:14px;line-height:1.5;">Sacale una captura a este mensaje completo (incluido el texto de arriba) — con eso alcanza para saber la causa exacta. "Borrar datos" solo afecta lo guardado en este navegador, nunca los archivos ya subidos.</div>' +
+        '</div>' +
+      '</div>';
+  }
+  window.__sindiShowFatal = showFatal;
+  window.addEventListener('error', function(e){
+    showFatal('Un script de la aplicación falló al ejecutarse.', (e.error && e.error.stack) || e.message || 'Error desconocido');
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    var r = e.reason;
+    showFatal('Una operación asincrónica falló sin ser controlada.', (r && r.stack) || (r && r.message) || String(r));
+  });
+  // Si después de cargar todo la app sigue sin mostrar nada (ni la pantalla
+  // de error, ni el login), probablemente un recurso externo bloqueado
+  // (adblock, antivirus, red corporativa) frenó la ejecución en silencio.
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      var app = document.getElementById('app');
+      if(app && app.innerHTML.trim() === ''){
+        showFatal(
+          'La aplicación cargó la página pero no llegó a dibujar nada.',
+          'Causas más comunes: un bloqueador de anuncios o antivirus frenando un script, sin conexión a internet en la primera carga, o una caché vieja del navegador.\n\nProbá: recarga forzada (Ctrl/Cmd+Shift+R), desactivar el adblock para este sitio, o abrir la consola (F12) para ver el detalle.'
+        );
+      }
+    }, 4000);
+  });
+})();
+</script>
+
+<!-- Exportación a Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Configuración (editar antes de publicar) -->
+<script src="js/config.js"></script>
+
+<!-- Capa de datos -->
+<script src="js/storage.js"></script>
+<script src="js/api.js"></script>
+
+<!-- Módulos de la aplicación -->
+<script src="js/app-core.js"></script>
+<script src="js/app-catalog.js"></script>
+<script src="js/app-needs-projects.js"></script>
+<script src="js/app-milestones.js"></script>
+<script src="js/app-materials-purchases.js"></script>
+<script src="js/app-requests.js"></script>
+<script src="js/app-maintenance.js"></script>
+<script src="js/app-files.js"></script>
+<script src="js/app-users.js"></script>
+<script src="js/app-audit.js"></script>
+<script src="js/app-export.js"></script>
+<script src="js/app-init.js"></script>
+
+<!-- Registro del service worker (PWA). Ruta relativa: funciona igual en
+     GitHub Pages bajo /repo/ que en un dominio propio de Cloudflare. -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      // Si hay una versión nueva esperando, se activa y se recarga una vez.
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            nw.postMessage('SKIP_WAITING');
+          }
+        });
+      });
+    }).catch(err => console.warn('SW no registrado:', err));
+
+    let recargado = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (recargado) return;
+      recargado = true;
+      window.location.reload();
+    });
+  });
+}
+</script>
+</body>
+</html>

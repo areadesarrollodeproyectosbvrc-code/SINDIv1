@@ -1,0 +1,27 @@
+# Despliega SINDI (app + API de archivos) a Cloudflare Workers cada vez
+# que se hace push a main. Reemplaza la configuración manual desde el
+# dashboard de Cloudflare (que daba problemas con "Root directory") por
+# algo reproducible y a prueba de errores de tipeo.
+#
+# Requiere dos secretos configurados en GitHub:
+#   Settings → Secrets and variables → Actions → New repository secret
+#   - CLOUDFLARE_API_TOKEN   (ver PUESTA_EN_MARCHA.md para cómo generarlo)
+#   - CLOUDFLARE_ACCOUNT_ID  (dashboard de Cloudflare, columna derecha)
+name: Desplegar SINDI a Cloudflare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy a Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
