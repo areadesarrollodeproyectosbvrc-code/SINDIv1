@@ -28,6 +28,10 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        # El nombre "sindi-archivos" tiene que coincidir con el bucket_name
+        # de wrangler.jsonc. Si ya existe (deploys siguientes), wrangler
+        # avisa el error pero no corta el workflow (|| true) — seguimos
+        # directo al deploy.
         run: npx wrangler r2 bucket create sindi-archivos || true
       - name: Deploy a Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
