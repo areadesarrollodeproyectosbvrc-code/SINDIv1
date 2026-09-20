@@ -19,7 +19,7 @@
    CACHE_VERSION para que los navegadores tomen los archivos nuevos.
    ============================================================ */
 
-const CACHE_VERSION = 'sindi-v22';
+const CACHE_VERSION = 'sindi-v23';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const FONT_CACHE = `${CACHE_VERSION}-fonts`;
 

@@ -6,14 +6,14 @@
 <title>SINDI — Sistema Integral de Necesidades y Diagnóstico de Infraestructura</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="/css/styles.css">
 
 <!-- PWA -->
 <meta name="description" content="SINDI — Gestión de relevamientos, necesidades, proyectos, materiales y compras de infraestructura.">
 <meta name="theme-color" content="#12161c">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/favicon-64.png" sizes="64x64" type="image/png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SINDI">
@@ -76,32 +76,32 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <!-- Configuración (editar antes de publicar) -->
-<script src="js/config.js"></script>
+<script src="/js/config.js"></script>
 
 <!-- Capa de datos -->
-<script src="js/storage.js"></script>
-<script src="js/api.js"></script>
+<script src="/js/storage.js"></script>
+<script src="/js/api.js"></script>
 
 <!-- Módulos de la aplicación -->
-<script src="js/app-core.js"></script>
-<script src="js/app-catalog.js"></script>
-<script src="js/app-needs-projects.js"></script>
-<script src="js/app-milestones.js"></script>
-<script src="js/app-materials-purchases.js"></script>
-<script src="js/app-requests.js"></script>
-<script src="js/app-maintenance.js"></script>
-<script src="js/app-files.js"></script>
-<script src="js/app-users.js"></script>
-<script src="js/app-audit.js"></script>
-<script src="js/app-export.js"></script>
-<script src="js/app-init.js"></script>
+<script src="/js/app-core.js"></script>
+<script src="/js/app-catalog.js"></script>
+<script src="/js/app-needs-projects.js"></script>
+<script src="/js/app-milestones.js"></script>
+<script src="/js/app-materials-purchases.js"></script>
+<script src="/js/app-requests.js"></script>
+<script src="/js/app-maintenance.js"></script>
+<script src="/js/app-files.js"></script>
+<script src="/js/app-users.js"></script>
+<script src="/js/app-audit.js"></script>
+<script src="/js/app-export.js"></script>
+<script src="/js/app-init.js"></script>
 
 <!-- Registro del service worker (PWA). Ruta relativa: funciona igual en
      GitHub Pages bajo /repo/ que en un dominio propio de Cloudflare. -->
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(reg => {
+    navigator.serviceWorker.register('/sw.js').then(reg => {
       // Si hay una versión nueva esperando, se activa y se recarga una vez.
       reg.addEventListener('updatefound', () => {
         const nw = reg.installing;
