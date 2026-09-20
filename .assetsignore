@@ -1,0 +1,11 @@
+# Lo que NO se publica en internet junto con la app SINDI.
+.git
+.github
+.wrangler
+node_modules
+worker.js
+wrangler.jsonc
+.assetsignore
+.gitignore
+.nojekyll
+*.md
