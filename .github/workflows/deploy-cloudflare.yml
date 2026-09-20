@@ -1,0 +1,41 @@
+# Despliega SINDI (app + API de archivos) a Cloudflare Workers cada vez
+# que se hace push a main. Reemplaza la configuración manual desde el
+# dashboard de Cloudflare (que daba problemas con "Root directory") por
+# algo reproducible y a prueba de errores de tipeo.
+#
+# También crea el bucket de R2 solo, si todavía no existe, así no hace
+# falta ir al dashboard de Cloudflare a crearlo a mano — se resuelve
+# entero desde acá.
+#
+# Requiere dos secretos configurados en GitHub:
+#   Settings → Secrets and variables → Actions → New repository secret
+#   - CLOUDFLARE_API_TOKEN   (ver PUESTA_EN_MARCHA.md para cómo generarlo;
+#     tiene que incluir permiso de edición sobre "Workers R2 Storage")
+#   - CLOUDFLARE_ACCOUNT_ID  (dashboard de Cloudflare, columna derecha)
+name: Desplegar SINDI a Cloudflare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Crear el bucket de R2 (si no existe todavía)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        # El nombre "sindi-archivos" tiene que coincidir con el bucket_name
+        # de wrangler.jsonc. Si ya existe (deploys siguientes), wrangler
+        # avisa el error pero no corta el workflow (|| true) — seguimos
+        # directo al deploy.
+        run: npx wrangler r2 bucket create sindi-archivos || true
+      - name: Deploy a Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
