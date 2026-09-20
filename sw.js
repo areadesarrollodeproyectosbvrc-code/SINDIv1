@@ -4,7 +4,8 @@
    Estrategia:
    - App shell (HTML/CSS/JS/iconos): precache + "stale-while-revalidate".
      La app abre al instante y se actualiza sola en segundo plano.
-   - /api/storage (subir/listar/borrar): siempre por red, nunca cacheado.
+   - /api/storage y /api/state (subir/listar/borrar archivos, y el
+     estado compartido de la app): siempre por red, nunca cacheado.
    - /api/file (fotos/archivos ya subidos): stale-while-revalidate, como
      el resto del mismo origen — cada archivo tiene una key única, así
      que cachearlo es seguro y ayuda a verlo offline.
@@ -18,7 +19,7 @@
    CACHE_VERSION para que los navegadores tomen los archivos nuevos.
    ============================================================ */
 
-const CACHE_VERSION = 'sindi-v21';
+const CACHE_VERSION = 'sindi-v22';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const FONT_CACHE = `${CACHE_VERSION}-fonts`;
 
@@ -95,7 +96,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
 
   // Acción de estado/API (no es un archivo): siempre por red, nunca cacheada.
-  if (url.pathname === '/api/storage') return;
+  if (url.pathname === '/api/storage' || url.pathname === '/api/state') return;
 
   // Fuentes y librerías externas: cache-first.
   if (isGoogleFont(url) || isVendorLib(url)) {

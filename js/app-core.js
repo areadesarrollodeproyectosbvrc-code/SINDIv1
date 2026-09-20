@@ -115,10 +115,43 @@ function init(){
   ensureUsersSeeded();
   render();
   setInterval(()=>{ const c = document.getElementById('clock'); if(c) c.textContent = nowClockStr(); }, 5000);
+
+  // Al abrir: si el servidor tiene una copia más nueva que la de este
+  // dispositivo, se usa esa. Si el servidor todavía no tiene nada (primer
+  // uso de la app), se sube la copia local para que sea el punto de
+  // partida compartido con todos.
+  syncFromServerOnLoad();
+  // Cada 25s, revisar si alguien más cambió algo desde otro dispositivo
+  // (salvo que haya un modal abierto: no queremos mover el piso debajo
+  // de una edición en curso).
+  setInterval(pollServerForUpdates, 25000);
+}
+
+async function syncFromServerOnLoad(){
+  const serverDB = await fetchServerDB();
+  if(serverDB){
+    if(!DB.updatedAt || (serverDB.updatedAt && serverDB.updatedAt > DB.updatedAt)){
+      DB = Object.assign(emptyDB(), serverDB);
+      ensureUsersSeeded();
+      render();
+    }
+  } else {
+    syncDBToServer(DB);
+  }
+}
+async function pollServerForUpdates(){
+  if(modal) return;
+  const serverDB = await fetchServerDB();
+  if(serverDB && serverDB.updatedAt && (!DB.updatedAt || serverDB.updatedAt > DB.updatedAt)){
+    DB = Object.assign(emptyDB(), serverDB);
+    ensureUsersSeeded();
+    render();
+  }
 }
 
 function persist(){
   saveDB(DB, (ok)=>{ toast(ok ? 'Guardado' : 'No se pudo guardar en este navegador'); });
+  syncDBToServer(DB);
 }
 function logAudit(action, entity, description){
   DB.audit.unshift({ id: uid(), ts: new Date().toISOString(), user: session?.name || 'Sistema', action, entity, description });

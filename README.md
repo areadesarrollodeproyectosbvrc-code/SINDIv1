@@ -166,13 +166,14 @@ en `js/config.js` es siempre `/api/storage` (mismo origen).
 ## 5. Notas y límites de esta versión
 
 - El estado de gestión (cuarteles, espacios, necesidades, proyectos,
-  eventos, auditoría) vive en el `localStorage` del navegador donde se
-  usa SINDI — es decir, es **por dispositivo**, no compartido entre
-  usuarios. Solo los archivos (fotos, planos, comprobantes) son
-  realmente centrales, vía R2. Si hace falta que el resto de los datos
-  también se comparta entre computadoras, se puede extender el mismo
-  Worker con una base de datos (Cloudflare D1) más adelante, sin tocar
-  el resto de la aplicación.
+  eventos, auditoría, usuarios) se guarda tanto en `localStorage` (copia
+  local, instantánea, funciona sin conexión) como en R2, vía
+  `/api/state` (copia compartida, la misma para todos). Al abrir la app
+  se sincroniza con el servidor, y cada tanto revisa si hay cambios de
+  otro dispositivo. Es "el último que guarda gana" — no hay resolución
+  fina de conflictos entre ediciones simultáneas — un compromiso
+  razonable para el tamaño de este equipo, a cambio de no montar una
+  base de datos aparte.
 - La exportación a Excel usa la librería [SheetJS](https://sheetjs.com/)
   cargada desde CDN.
 - La impresión a PDF usa el diálogo nativo de impresión del navegador

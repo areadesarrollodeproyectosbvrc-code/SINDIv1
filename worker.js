@@ -23,6 +23,9 @@ export default {
     if (url.pathname === '/api/storage') {
       return handleStorage(request, env, ctx, url);
     }
+    if (url.pathname === '/api/state') {
+      return handleState(request, env);
+    }
 
     // Cualquier otra ruta: la app estática (index.html, js/, css/, icons/).
     // El fallback a index.html para rutas desconocidas (SPA) lo resuelve
@@ -30,6 +33,41 @@ export default {
     return env.ASSETS.fetch(request);
   },
 };
+
+// Estado compartido de la app (cuarteles, espacios, necesidades, proyectos,
+// usuarios, etc.) — todo lo que antes vivía SOLO en localStorage de cada
+// dispositivo. Se guarda como un único JSON en R2 (mismo bucket que los
+// archivos, bajo una key separada), así todos los dispositivos ven los
+// mismos datos.
+//
+// Es "el último que guarda gana": no hay resolución de conflictos fina.
+// Para el volumen de uso de esta app (un equipo chico) es un compromiso
+// razonable a cambio de no montar una base de datos aparte.
+const STATE_KEY = '_state/sindi-db.json';
+
+async function handleState(request, env) {
+  const cors_ = cors();
+  if (request.method === 'OPTIONS') return new Response(null, { headers: cors_ });
+
+  if (request.method === 'GET') {
+    const obj = await env.SINDI_BUCKET.get(STATE_KEY);
+    if (!obj) return json({ ok: true, state: null });
+    const text = await obj.text();
+    return new Response(text, { headers: { 'Content-Type': 'application/json', ...cors_ } });
+  }
+
+  if (request.method === 'POST' || request.method === 'PUT') {
+    let bodyText;
+    try { bodyText = await request.text(); JSON.parse(bodyText); }
+    catch (e) { return json({ ok: false, error: 'JSON inválido.' }, 400); }
+    await env.SINDI_BUCKET.put(STATE_KEY, bodyText, {
+      httpMetadata: { contentType: 'application/json' },
+    });
+    return json({ ok: true });
+  }
+
+  return json({ ok: false, error: 'Método no soportado.' }, 405);
+}
 
 function cors() {
   return {
