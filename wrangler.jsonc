@@ -1,0 +1,27 @@
+{
+  // IMPORTANTE: este nombre tiene que ser IGUAL al del Worker que ves en
+  // el dashboard de Cloudflare (Workers & Pages). Si allá le pusiste otro
+  // nombre, cambialo acá también antes de desplegar.
+  "name": "sindi",
+  "compatibility_date": "2026-09-18",
+  "main": "worker.js",
+
+  // La app estática (index.html, js/, css/, icons/) se sirve desde acá.
+  // Lo que NO tiene que publicarse (código fuente del Worker, docs, git)
+  // se excluye en .assetsignore.
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS",
+    // Cualquier ruta que no matchee un archivo real cae en index.html
+    // (necesario porque SINDI es una app de una sola página).
+    "not_found_handling": "single-page-application"
+  },
+
+  // Bucket de R2 donde se guardan todos los archivos (fotos, comprobantes,
+  // planos). Se crea una sola vez con:
+  //   npx wrangler r2 bucket create sindi-archivos
+  // Si le pusiste otro nombre al bucket, actualizalo también acá.
+  "r2_buckets": [
+    { "binding": "SINDI_BUCKET", "bucket_name": "sindi-archivos" }
+  ]
+}
